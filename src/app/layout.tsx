@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { AppShell } from "@/components/app-shell";
 import "./globals.css";
 export const metadata: Metadata = {
   title: { default: "今日 · 成长管家", template: "%s · 成长管家" },
@@ -12,9 +11,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN">
-      <body>
-        <AppShell>{children}</AppShell>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
