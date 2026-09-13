@@ -1,3 +1,4 @@
+import { activeMemoryContext } from "../_shared/memory-context.ts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { dateWindow } from "../_shared/plan-schema.ts";
 import { loadContext } from "./context.ts";
@@ -68,7 +69,17 @@ export async function handleRequest(
     }
     if (body.source_date !== dates.today)
       throw new PlanError("DATE_CHANGED", 409);
-    const context = await loadContext(db, user.id, dates);
+    const context = {
+      ...(await loadContext(db, user.id, dates)),
+      active_memories: (await activeMemoryContext(db, user.id)).map(
+        ({ category, key, value, confidence }) => ({
+          category,
+          key,
+          value,
+          confidence,
+        }),
+      ),
+    };
     const proposal = await generateProposal(
       context,
       deps.getAIConfig(),

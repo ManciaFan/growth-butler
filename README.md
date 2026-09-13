@@ -2,13 +2,13 @@
 
 Next.js App Router + TypeScript + Supabase Auth/PostgreSQL，部署于 Vercel 的个人成长 Web App。
 
-## 第三阶段功能
+## 第四阶段功能
 
 - `/login`：邮箱和密码登录；账号由管理员在 Supabase Dashboard 创建。本阶段不含公开注册、密码找回页面。
 - `/`：首次打开自动创建当天的空计划；添加任务、勾选完成、编辑今日目标、保存文字反馈和能量评价。
 - `/goals`：新增、编辑长期目标，状态为进行中、已完成或已暂停。
 - `/history`：查看今天之前的每日目标、任务、完成率和反馈，每页 20 天。
-- `/butler`：AI 管家使用说明。首页可结束今天、生成明日预览，用户确认后才保存；支持重新生成和取消。
+- `/butler`：云端对话、会话切换和可纠正的管家记忆；重要长期信息确认后生效，支持编辑替换、失效和删除。首页预览旁可以和管家讨论，调整仍须先应用到预览，再明确采用。
 - AI 通过 Supabase Edge Function 调用 DeepSeek，只读取当前用户的进行中目标、当天计划/任务/反馈及含今天的最近 7 天计划完成情况。最多 3 项任务，保留安排原因和完成标准；无定时任务、后台轮询或好友监督。
 - 业务页面通过服务端验证登录状态；浏览器和服务端使用 `@supabase/ssr` cookie 会话，Proxy 刷新会话。退出仅结束当前设备会话。
 - 数据按账号保存在 Supabase。另一设备用同一账号登录，打开页面或点击“刷新云端数据”即可读取最新保存；不含实时推送或后台轮询。
@@ -26,6 +26,8 @@ Next.js App Router + TypeScript + Supabase Auth/PostgreSQL，部署于 Vercel �
 - 未保存草稿仅在当前页面；导航或关闭页面会丢失。主动刷新遇到草稿时会询问是否丢弃。
 
 ## 首次配置 Supabase Dashboard
+
+**已完成第三阶段：按 [第四阶段部署说明](docs/butler-chat-deployment.md) 人工审阅并执行 003，然后部署 `butler-chat` 和新版 `generate-tomorrow-plan`。生产迁移不会自动执行。**
 
 **已完成第二阶段的项目：按照 [第三阶段部署说明](docs/ai-planning-deployment.md) 执行新增的 `002_ai_tomorrow_plan.sql` 并部署 Edge Function，不要重复执行 001。** 新项目先完成下列步骤，再执行第三阶段部署。
 

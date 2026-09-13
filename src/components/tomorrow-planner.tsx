@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
+import { ButlerChat } from "./butler-chat";
 import { Sparkles } from "lucide-react";
 import {
   adoptTomorrowPlan,
@@ -19,6 +20,7 @@ export function TomorrowPlanner({
   dirty: boolean;
   onBusy: (value: boolean) => void;
 }) {
+  const [chatOpen, setChatOpen] = useState(false);
   const [preview, setPreview] = useState<PlanPreview | null>(null);
   const [pending, setPending] = useState<"generate" | "adopt" | null>(null);
   const [error, setError] = useState("");
@@ -119,7 +121,11 @@ export function TomorrowPlanner({
       )}
       {preview && (
         <div className="plan-preview">
-          {stale && !saved && <p className="draft-warning">今天的记录已改变，请重新生成后再采用。</p>}
+          {stale && !saved && (
+            <p className="draft-warning">
+              今天的记录已改变，请重新生成后再采用。
+            </p>
+          )}
           <p className="eyebrow">
             {preview.plan_date} · 明日计划{saved ? " · 已采用" : " · 尚未保存"}
           </p>
@@ -170,6 +176,13 @@ export function TomorrowPlanner({
           ) : (
             <div className="preview-actions">
               <button
+                className="secondary-button"
+                disabled={!!pending || stale || dirty}
+                onClick={() => setChatOpen(!chatOpen)}
+              >
+                和管家聊聊
+              </button>
+              <button
                 className="primary-button"
                 disabled={disabled || dirty || !!pending || stale}
                 onClick={adopt}
@@ -197,6 +210,16 @@ export function TomorrowPlanner({
             </div>
           )}
         </div>
+      )}
+      {chatOpen && preview && !saved && !stale && !dirty && (
+        <ButlerChat
+          preview={preview}
+          onRevision={(next) => {
+            setPreview(next);
+            planId.current = null;
+            setError("");
+          }}
+        />
       )}
     </section>
   );

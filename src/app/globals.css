@@ -1318,20 +1318,227 @@ progress::-moz-progress-bar {
   }
 }
 
-.tomorrow-planner { margin-bottom: 24px; background: #fafcf6; }
-.tomorrow-planner h2 { display: flex; align-items: center; gap: 8px; }
-.tomorrow-planner > .primary-button { margin-top: 20px; }
-.tomorrow-planner > .card-footnote { max-width: 850px; font-size: 12px; }
-.draft-warning { color: #896425; padding: 12px; background: #fff7e7; border-radius: 7px; font-size: 12px; margin-top: 15px; }
-.plan-preview { border-top: 1px solid var(--line); padding-top: 25px; margin-top: 24px; }
-.plan-preview h3 { margin: 20px 0 8px; }
-.plan-preview p { font-size: 13px; line-height: 1.9; }
-.preview-main-goal { background: #eaf1e2; border-radius: 9px; padding: 5px 20px 12px; margin: 20px 0; }
-.preview-tasks { margin: 15px 0; padding: 0; list-style: none; display: grid; gap: 12px; }
-.preview-tasks li { background: white; border: 1px solid var(--line); border-radius: 9px; padding: 18px; }
-.preview-tasks .section-heading { margin-bottom: 10px; align-items: flex-start; }
-.preview-tasks .tag { flex-shrink: 0; }
-.preview-tasks strong { overflow-wrap: anywhere; }
-.preview-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
-.task-content > .task-detail, .task-detail { display: block; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; font-size: 11px; color: var(--muted); margin-top: 7px; }
-@media (max-width: 640px) { .tomorrow-planner .section-heading { flex-wrap: wrap; } .preview-actions button { min-height: 44px; } .preview-tasks li { padding: 14px; } }
+.tomorrow-planner {
+  margin-bottom: 24px;
+  background: #fafcf6;
+}
+.tomorrow-planner h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tomorrow-planner > .primary-button {
+  margin-top: 20px;
+}
+.tomorrow-planner > .card-footnote {
+  max-width: 850px;
+  font-size: 12px;
+}
+.draft-warning {
+  color: #896425;
+  padding: 12px;
+  background: #fff7e7;
+  border-radius: 7px;
+  font-size: 12px;
+  margin-top: 15px;
+}
+.plan-preview {
+  border-top: 1px solid var(--line);
+  padding-top: 25px;
+  margin-top: 24px;
+}
+.plan-preview h3 {
+  margin: 20px 0 8px;
+}
+.plan-preview p {
+  font-size: 13px;
+  line-height: 1.9;
+}
+.preview-main-goal {
+  background: #eaf1e2;
+  border-radius: 9px;
+  padding: 5px 20px 12px;
+  margin: 20px 0;
+}
+.preview-tasks {
+  margin: 15px 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+.preview-tasks li {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 18px;
+}
+.preview-tasks .section-heading {
+  margin-bottom: 10px;
+  align-items: flex-start;
+}
+.preview-tasks .tag {
+  flex-shrink: 0;
+}
+.preview-tasks strong {
+  overflow-wrap: anywhere;
+}
+.preview-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+.task-content > .task-detail,
+.task-detail {
+  display: block;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 7px;
+}
+@media (max-width: 640px) {
+  .tomorrow-planner .section-heading {
+    flex-wrap: wrap;
+  }
+  .preview-actions button {
+    min-height: 44px;
+  }
+  .preview-tasks li {
+    padding: 14px;
+  }
+}
+
+.butler-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.chat-panel,
+.butler-side {
+  min-width: 0;
+}
+.butler-side {
+  display: grid;
+  gap: 18px;
+}
+.chat-messages {
+  max-height: 60vh;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  display: grid;
+  gap: 14px;
+  padding: 16px 0;
+}
+.chat-bubble {
+  border-radius: 16px;
+  padding: 16px;
+  background: #f3f6ef;
+}
+.chat-bubble.user {
+  background: #e8eee3;
+  margin-left: 10%;
+}
+.chat-bubble small,
+.memory-item small {
+  color: #6e7c71;
+}
+.chat-bubble p {
+  margin: 10px 0;
+}
+.chat-composer {
+  position: sticky;
+  bottom: 0;
+  background: var(--surface, #fff);
+  padding-top: 12px;
+  z-index: 2;
+}
+.chat-composer textarea {
+  min-height: 90px;
+}
+.memory-proposal,
+.memory-item {
+  border-top: 1px solid #dce4d6;
+  margin-top: 14px;
+  padding-top: 14px;
+  overflow-wrap: anywhere;
+}
+.butler-layout select {
+  width: 100%;
+  margin: 8px 0;
+}
+.butler-layout textarea {
+  width: 100%;
+}
+.tomorrow-planner > .butler-layout {
+  margin-top: 24px;
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (max-width: 900px) {
+  .butler-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .butler-side {
+    grid-row: 1;
+  }
+  .butler-side .card {
+    max-height: 300px;
+    overflow: auto;
+  }
+  .chat-composer {
+    bottom: 70px;
+  }
+  .chat-messages {
+    max-height: 55vh;
+  }
+}
+.butler-layout select,
+.butler-layout textarea {
+  border: 1px solid #dce4d6;
+  border-radius: 10px;
+  padding: 12px;
+  background: #fbfcf9;
+  font: inherit;
+  color: inherit;
+}
+.butler-layout .text-button {
+  border: 0;
+  background: transparent;
+  color: #486f50;
+  padding: 7px 0;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+.chat-panel {
+  display: flex;
+  flex-direction: column;
+}
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  height: 55vh;
+  min-height: 220px;
+}
+.chat-bubble {
+  flex-shrink: 0;
+}
+.chat-composer {
+  position: relative;
+  bottom: auto;
+}
+@media (max-width: 900px) {
+  .chat-composer {
+    position: sticky;
+    bottom: 70px;
+  }
+}
+/* Keep the composer at the bottom of a bounded chat panel without covering messages. */
+.chat-panel { height:calc(100dvh - 120px); min-height:640px; }
+.chat-messages { flex:1; height:auto; min-height:120px; max-height:none; }
+.chat-composer { position:static; flex-shrink:0; }
+@media(max-width:900px){.chat-composer{position:static;}.chat-messages{max-height:none;}}

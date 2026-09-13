@@ -63,6 +63,7 @@ test("provider errors are classified, sanitized and never automatically retried"
 
 function fakeDB({ existing = false, dbError = false, user = { id: "user-a" } } = {}) {
   const rows = {
+    memories: [{id:'m1',user_id:'user-a',status:'active',category:'career',key:'priority',value:'当前有效结论',confidence:'high'},{id:'m2',user_id:'user-a',status:'superseded',value:'被替换结论'},{id:'m3',user_id:'user-a',status:'invalidated',value:'失效结论'},{id:'m4',user_id:'user-b',status:'active',value:'别人记忆'}],
     goals: [{ user_id: "user-a", status: "active", title: "我的目标", description: "只做一个重点" }, { user_id: "user-a", status: "completed", title: "已完成目标", description: "omit" }, { user_id: "user-b", status: "active", title: "别人目标", description: "private" }],
     daily_plans: [{ id: "today", user_id: "user-a", plan_date: "2026-09-13", main_goal: "今天主目标" }, { id: "old", user_id: "user-a", plan_date: "2026-09-01", main_goal: "过早历史" }, ...(existing ? [{ id: "tomorrow", user_id: "user-a", plan_date: "2026-09-14", main_goal: "已有明日计划" }] : [])],
     daily_feedback: [{ user_id: "user-a", feedback_date: "2026-09-13", content: "明早需要优先处理预约", energy_level: 3 }, { user_id: "user-a", feedback_date: "2026-09-12", content: "不能发送的旧反馈", energy_level: 3 }],
@@ -103,7 +104,7 @@ test("handler only sends allowed current-user context and never writes database 
     calls++; const input = JSON.parse(JSON.parse(init.body).messages[1].content.split("\n").slice(1).join("\n"));
     assert.equal(input.active_goals.length, 1); assert.equal(input.today.tasks.length, 1); assert.equal(input.recent_days.length, 1);
     const serialized = JSON.stringify(input);
-    for (const forbidden of ["user-a", "user-b", "别人目标", "旧任务不能发送", "不能发送的旧反馈", "过早历史", config.apiKey]) assert.ok(!serialized.includes(forbidden));
+    for (const forbidden of ["user-a", "user-b", "别人目标", "旧任务不能发送", "不能发送的旧反馈", "过早历史", "被替换结论", "失效结论", "别人记忆", config.apiKey]) assert.ok(!serialized.includes(forbidden));
     return completion(proposal);
   }));
   assert.equal(response.status, 200); assert.equal(calls, 1);

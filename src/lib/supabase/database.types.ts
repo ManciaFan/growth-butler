@@ -1,4 +1,31 @@
 export type GoalStatus = "active" | "completed" | "paused";
+export type ChatSession = BaseRow & { title: string; archived: boolean };
+export type ChatMessage = {
+  id: string;
+  user_id: string;
+  session_id: string;
+  role: "user" | "assistant";
+  content: string;
+  created_at: string;
+  metadata: Record<string, unknown>;
+};
+export type Memory = BaseRow & {
+  category: string;
+  key: string;
+  value: string;
+  status: "proposed" | "active" | "superseded" | "invalidated";
+  confidence: "low" | "medium" | "high";
+  source_message_id: string | null;
+  supersedes_memory_id: string | null;
+};
+export type PeriodSummary = {
+  id: string;
+  user_id: string;
+  period_start: string;
+  period_end: string;
+  summary: string;
+  created_at: string;
+};
 type BaseRow = {
   id: string;
   user_id: string;
@@ -34,6 +61,19 @@ type Table<Row, Required extends keyof Row> = {
 export type Database = {
   public: {
     Tables: {
+      chat_sessions: Table<ChatSession, "user_id">;
+      chat_messages: Table<
+        ChatMessage,
+        "user_id" | "session_id" | "role" | "content"
+      >;
+      memories: Table<
+        Memory,
+        "user_id" | "category" | "key" | "value" | "confidence"
+      >;
+      period_summaries: Table<
+        PeriodSummary,
+        "user_id" | "period_start" | "period_end" | "summary"
+      >;
       goals: Table<Goal, "user_id" | "title">;
       daily_plans: Table<DailyPlan, "user_id" | "plan_date">;
       tasks: Table<Task, "user_id" | "daily_plan_id" | "title">;
@@ -41,6 +81,19 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      confirm_memory: {
+        Args: {
+          p_id: string;
+          p_category: string;
+          p_key: string;
+          p_value: string;
+          p_confidence: string;
+          p_source: string | null;
+          p_previous: string | null;
+          p_action: string;
+        };
+        Returns: string;
+      };
       adopt_tomorrow_plan: {
         Args: {
           p_source_date: string;

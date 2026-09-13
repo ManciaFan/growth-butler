@@ -4,3 +4,8 @@
 enabled = true
 verify_jwt = false
 entrypoint = "./functions/generate-tomorrow-plan/index.ts"
+
+[functions.butler-chat]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/butler-chat/index.ts"
