@@ -2,13 +2,14 @@
 
 Next.js App Router + TypeScript + Supabase Auth/PostgreSQL，部署于 Vercel 的个人成长 Web App。
 
-## 第二阶段功能
+## 第三阶段功能
 
 - `/login`：邮箱和密码登录；账号由管理员在 Supabase Dashboard 创建。本阶段不含公开注册、密码找回页面。
 - `/`：首次打开自动创建当天的空计划；添加任务、勾选完成、编辑今日目标、保存文字反馈和能量评价。
 - `/goals`：新增、编辑长期目标，状态为进行中、已完成或已暂停。
 - `/history`：查看今天之前的每日目标、任务、完成率和反馈，每页 20 天。
-- `/butler`：保留功能介绍，未接 AI、定时任务或好友监督。
+- `/butler`：AI 管家使用说明。首页可结束今天、生成明日预览，用户确认后才保存；支持重新生成和取消。
+- AI 通过 Supabase Edge Function 调用 DeepSeek，只读取当前用户的进行中目标、当天计划/任务/反馈及含今天的最近 7 天计划完成情况。最多 3 项任务，保留安排原因和完成标准；无定时任务、后台轮询或好友监督。
 - 业务页面通过服务端验证登录状态；浏览器和服务端使用 `@supabase/ssr` cookie 会话，Proxy 刷新会话。退出仅结束当前设备会话。
 - 数据按账号保存在 Supabase。另一设备用同一账号登录，打开页面或点击“刷新云端数据”即可读取最新保存；不含实时推送或后台轮询。
 
@@ -25,6 +26,8 @@ Next.js App Router + TypeScript + Supabase Auth/PostgreSQL，部署于 Vercel �
 - 未保存草稿仅在当前页面；导航或关闭页面会丢失。主动刷新遇到草稿时会询问是否丢弃。
 
 ## 首次配置 Supabase Dashboard
+
+**已完成第二阶段的项目：按照 [第三阶段部署说明](docs/ai-planning-deployment.md) 执行新增的 `002_ai_tomorrow_plan.sql` 并部署 Edge Function，不要重复执行 001。** 新项目先完成下列步骤，再执行第三阶段部署。
 
 1. 打开目标 Supabase 项目的 **SQL Editor → New query**。
 2. 将 `supabase/migrations/001_initial_schema.sql` 的完整内容复制进去，以默认 `postgres` 身份执行一次。文件包含事务、四张表、索引、外键、更新时间触发器、RLS 和 16 条 policies。若报错先处理错误，不要跳过政策或关闭 RLS；已有同名表时应先核对结构，不要直接删除已有数据。
@@ -64,12 +67,15 @@ PowerShell 复制模板：`Copy-Item .env.example .env.local`。打开 http://lo
 
 ```bash
 npm run test:db
+npm run test:ai
 npm run lint
 npm run build
 npm run start
 ```
 
 `test:db` 使用内存 PostgreSQL（PGlite）执行真实迁移；仅模拟 Supabase 提供的 `auth.users`、`auth.uid()` 和角色。覆盖四表增删改查隔离、禁止更换所有者、匿名拒绝访问、跨用户外键、唯一约束、合法取值、更新时间触发器、陈旧版本冲突和删除级联。不会连接或修改真实 Supabase 项目。
+
+新增数据库测试覆盖明日计划原子保存、失败回滚、重复请求幂等和已有计划冲突。`test:ai` 使用模拟网络测试 JWT 校验、数据范围、结构校验、重试次数和中文错误分类，不消耗模型额度。Edge Function 独立检查：`npx --yes --package=deno deno check --config supabase/functions/generate-tomorrow-plan/deno.json supabase/functions/generate-tomorrow-plan/index.ts`。AI 测试使用 Node.js 24。
 
 建议上线验收：两个设备登录同一账号，创建/编辑目标、添加与勾选任务、保存反馈，在另一端刷新核对；断网保存应报错；第二个不同账号应看不到第一账号的数据；退出后重新访问业务 URL 应跳转登录。历史页面将在存在过往日期计划后显示记录。
 

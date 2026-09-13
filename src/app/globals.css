@@ -1317,3 +1317,21 @@ progress::-moz-progress-bar {
     scroll-behavior: auto;
   }
 }
+
+.tomorrow-planner { margin-bottom: 24px; background: #fafcf6; }
+.tomorrow-planner h2 { display: flex; align-items: center; gap: 8px; }
+.tomorrow-planner > .primary-button { margin-top: 20px; }
+.tomorrow-planner > .card-footnote { max-width: 850px; font-size: 12px; }
+.draft-warning { color: #896425; padding: 12px; background: #fff7e7; border-radius: 7px; font-size: 12px; margin-top: 15px; }
+.plan-preview { border-top: 1px solid var(--line); padding-top: 25px; margin-top: 24px; }
+.plan-preview h3 { margin: 20px 0 8px; }
+.plan-preview p { font-size: 13px; line-height: 1.9; }
+.preview-main-goal { background: #eaf1e2; border-radius: 9px; padding: 5px 20px 12px; margin: 20px 0; }
+.preview-tasks { margin: 15px 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.preview-tasks li { background: white; border: 1px solid var(--line); border-radius: 9px; padding: 18px; }
+.preview-tasks .section-heading { margin-bottom: 10px; align-items: flex-start; }
+.preview-tasks .tag { flex-shrink: 0; }
+.preview-tasks strong { overflow-wrap: anywhere; }
+.preview-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+.task-content > .task-detail, .task-detail { display: block; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.7; font-size: 11px; color: var(--muted); margin-top: 7px; }
+@media (max-width: 640px) { .tomorrow-planner .section-heading { flex-wrap: wrap; } .preview-actions button { min-height: 44px; } .preview-tasks li { padding: 14px; } }

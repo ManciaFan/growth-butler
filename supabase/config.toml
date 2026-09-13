@@ -1,0 +1,6 @@
+# JWTs are explicitly verified against Supabase Auth in the handler before any data/AI access.
+# This supports modern publishable keys and asymmetric user JWTs without the legacy gateway check.
+[functions.generate-tomorrow-plan]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/generate-tomorrow-plan/index.ts"

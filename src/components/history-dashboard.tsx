@@ -63,7 +63,7 @@ export function HistoryDashboard() {
                         <span aria-label={task.completed ? "已完成" : "未完成"}>
                           {task.completed ? "✓" : "○"}
                         </span>
-                        <span className="preserve-lines">{task.title}</span>
+                        <span className="preserve-lines">{task.title}{task.reason && <small className="task-detail">安排原因：{task.reason}</small>}{task.success_criteria && <small className="task-detail">完成标准：{task.success_criteria}</small>}</span>
                         <small>{task.estimated_minutes} 分钟</small>
                       </li>
                     ))}

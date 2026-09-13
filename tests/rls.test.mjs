@@ -29,6 +29,7 @@ test("migration enforces ownership, constraints, timestamps and cascades", async
         "utf8",
       ),
     );
+    await db.exec(await readFile(new URL("../supabase/migrations/002_ai_tomorrow_plan.sql", import.meta.url), "utf8"));
     const tables = ["goals", "daily_plans", "tasks", "daily_feedback"];
     assert.equal(
       (await db.query("select * from pg_policies where schemaname = 'public'"))

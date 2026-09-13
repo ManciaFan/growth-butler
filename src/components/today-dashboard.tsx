@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Check, Leaf, Sun } from "lucide-react";
 import { useUserId } from "./auth-context";
 import { CloudStatus } from "./cloud-status";
+import { TomorrowPlanner } from "./tomorrow-planner";
 import { useCloudResource } from "@/lib/use-cloud-resource";
 import {
   addTask,
@@ -76,18 +77,19 @@ function TodayEditor({
   const [message, setMessage] = useState("");
   const taskId = useRef<string | null>(null);
   const locked = useRef(false);
+  const [aiBusy, setAiBusy] = useState(false);
   const dirty =
     mainGoal !== plan.main_goal ||
     content !== (feedback?.content ?? "") ||
     energy !== (feedback?.energy_level ?? null) ||
     title !== "";
-  const busy = !!pending || loading;
+  const busy = !!pending || loading || aiBusy;
   const completed = tasks.filter((task) => task.completed).length;
   const percent = tasks.length
     ? Math.round((completed / tasks.length) * 100)
     : 0;
   async function save(name: string, operation: () => Promise<void>) {
-    if (locked.current || loading) return;
+    if (locked.current || loading || aiBusy) return;
     locked.current = true;
     setPending(name);
     setError("");
@@ -117,7 +119,7 @@ function TodayEditor({
       <CloudStatus
         loading={loading}
         error={loadError}
-        disabled={!!pending}
+        disabled={!!pending || aiBusy}
         refresh={reload}
       />
       <p className="muted small">
@@ -131,6 +133,17 @@ function TodayEditor({
           {error}
         </p>
       )}
+      <TomorrowPlanner
+        sourceDate={plan.plan_date}
+        sourceVersion={JSON.stringify([
+          plan.updated_at,
+          feedback?.updated_at,
+          tasks.map((task) => [task.id, task.updated_at]),
+        ])}
+        disabled={!!pending || loading}
+        dirty={dirty}
+        onBusy={setAiBusy}
+      />
       <div className="dashboard-grid">
         <div className="main-column">
           <section className="card" id="today-plan">
@@ -176,6 +189,16 @@ function TodayEditor({
                         ? `预计 ${task.estimated_minutes} 分钟`
                         : "未设置时长"}
                     </span>
+                    {task.reason && (
+                      <span className="task-detail">
+                        安排原因：{task.reason}
+                      </span>
+                    )}
+                    {task.success_criteria && (
+                      <span className="task-detail">
+                        完成标准：{task.success_criteria}
+                      </span>
+                    )}
                   </span>
                   {pending === task.id && <span className="small">保存中</span>}
                 </label>

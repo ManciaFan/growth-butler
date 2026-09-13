@@ -17,7 +17,7 @@ export default function ButlerPage() {
           <h1>成长路上，给自己一点陪伴</h1>
           <p>整理思绪，找到下一步的方向。</p>
         </div>
-        <span className="outline-chip">即将到来</span>
+        <span className="outline-chip">明日规划已开放</span>
       </div>
       <section className="hero butler-hero">
         <div>
@@ -26,12 +26,12 @@ export default function ButlerPage() {
           </span>
           <h2>一起，把日子过成喜欢的样子。</h2>
           <p>
-            未来，这里将陪你梳理计划、拆解目标、回顾成长。
+            保存今天的反馈，让管家根据你的目标与近期完成情况梳理明天。
             <br />
-            当前尚未开通智能对话，可以先从今天的计划开始。
+            先看 AI 建议，再决定是否采用。每一步都由你确认。
           </p>
           <Link href="/" className="hero-link">
-            看看今日计划 <ArrowRight size={17} />
+            去首页生成明日计划 <ArrowRight size={17} />
           </Link>
         </div>
       </section>
@@ -59,7 +59,7 @@ export default function ButlerPage() {
             </span>
             <h2>{title}</h2>
             <p className="muted">{text}</p>
-            <span className="tag">后续开放</span>
+            <span className="tag">明日规划的一部分</span>
           </section>
         ))}
       </div>
