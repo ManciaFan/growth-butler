@@ -1,4 +1,5 @@
 import { activeMemoryContext } from "../_shared/memory-context.ts";
+import { readSchedule } from "../_shared/schedule-context.ts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { dateWindow } from "../_shared/plan-schema.ts";
 import { loadContext } from "./context.ts";
@@ -71,6 +72,7 @@ export async function handleRequest(
       throw new PlanError("DATE_CHANGED", 409);
     const context = {
       ...(await loadContext(db, user.id, dates)),
+      course_schedule: await readSchedule(db, user.id, [dates.tomorrow]),
       active_memories: (await activeMemoryContext(db, user.id)).map(
         ({ category, key, value, confidence }) => ({
           category,

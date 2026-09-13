@@ -63,6 +63,7 @@ test("provider errors are classified, sanitized and never automatically retried"
 
 function fakeDB({ existing = false, dbError = false, user = { id: "user-a" } } = {}) {
   const rows = {
+    course_schedule: [], schedule_settings: [],
     memories: [{id:'m1',user_id:'user-a',status:'active',category:'career',key:'priority',value:'当前有效结论',confidence:'high'},{id:'m2',user_id:'user-a',status:'superseded',value:'被替换结论'},{id:'m3',user_id:'user-a',status:'invalidated',value:'失效结论'},{id:'m4',user_id:'user-b',status:'active',value:'别人记忆'}],
     goals: [{ user_id: "user-a", status: "active", title: "我的目标", description: "只做一个重点" }, { user_id: "user-a", status: "completed", title: "已完成目标", description: "omit" }, { user_id: "user-b", status: "active", title: "别人目标", description: "private" }],
     daily_plans: [{ id: "today", user_id: "user-a", plan_date: "2026-09-13", main_goal: "今天主目标" }, { id: "old", user_id: "user-a", plan_date: "2026-09-01", main_goal: "过早历史" }, ...(existing ? [{ id: "tomorrow", user_id: "user-a", plan_date: "2026-09-14", main_goal: "已有明日计划" }] : [])],
@@ -121,3 +122,4 @@ test("existing tomorrow, database failure and stale date never call AI", async (
     assert.equal((await response.json()).code, code); assert.equal(calls, 0);
   }
 });
+

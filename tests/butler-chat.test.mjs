@@ -134,6 +134,7 @@ test("authenticated handler scopes every read, persists chat only, caches retrie
   const queries = [],
     writes = [];
   const rows = {
+    course_schedule: [], schedule_settings: [],
     chat_sessions: [{ id: session, user_id: owner, archived: false }],
     chat_messages: [
       {
@@ -341,3 +342,4 @@ test("authenticated handler scopes every read, persists chat only, caches retrie
   assert.equal(denied.status, 400);
   assert.equal(calls, 1);
 });
+

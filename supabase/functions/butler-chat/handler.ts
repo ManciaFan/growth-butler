@@ -2,6 +2,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { validateChat, compressChat } from "../_shared/chat-schema.ts";
 import { dateWindow, validatePreview } from "../_shared/plan-schema.ts";
 import { activeMemoryContext } from "../_shared/memory-context.ts";
+import { readSchedule } from "../_shared/schedule-context.ts";
+import { scheduleDates } from "../_shared/schedule-schema.ts";
 import {
   loadContext,
   validatePlanningRules,
@@ -154,6 +156,16 @@ export async function handleChat(
     if (messages.error || summaries.error)
       throw new PlanError("DATABASE_ERROR", 503);
     const context = {
+      course_schedule: await readSchedule(
+        db,
+        owner,
+        [
+          ...new Set([
+            ...(body.preview ? [body.preview.plan_date] : []),
+            ...scheduleDates(body.content, dateWindow().today),
+          ]),
+        ].slice(0, 7),
+      ),
       active_memories: memories.map(({ category, key, value, confidence }) => ({
         category,
         key,
