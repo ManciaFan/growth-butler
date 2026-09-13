@@ -1542,3 +1542,13 @@ progress::-moz-progress-bar {
 .chat-messages { flex:1; height:auto; min-height:120px; max-height:none; }
 .chat-composer { position:static; flex-shrink:0; }
 @media(max-width:900px){.chat-composer{position:static;}.chat-messages{max-height:none;}}
+
+.schedule-space { display:grid; gap:20px; }
+.schedule-list { display:grid; gap:12px; }
+.schedule-course { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px; background:#f4f7f0; border-radius:12px; }
+.schedule-course h3 { margin:8px 0; }.schedule-course p { margin:0; }.schedule-course small { color:#657267; }
+.schedule-import-review { max-height:320px; overflow:auto; overflow-wrap:anywhere; }
+.schedule-file { display:block; max-width:100%; margin-top:8px; }
+.period-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:16px; margin-bottom:20px; }
+.period-grid>div { padding:12px; border:1px solid #e3e9de; border-radius:10px; }
+@media(max-width:600px){.schedule-course{align-items:flex-start;flex-direction:column;}.schedule-space .preview-actions{flex-wrap:wrap;}}

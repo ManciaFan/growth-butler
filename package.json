@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:db": "node --test tests/rls.test.mjs tests/adoption.test.mjs tests/memory.test.mjs",
-    "test:ai": "node --test tests/ai-plan.test.mjs tests/butler-chat.test.mjs"
+    "test:db": "node --test tests/rls.test.mjs tests/adoption.test.mjs tests/memory.test.mjs tests/schedule-db.test.mjs",
+    "test:ai": "node --test tests/ai-plan.test.mjs tests/butler-chat.test.mjs tests/schedule-ai.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

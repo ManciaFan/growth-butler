@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 const links = [
   { href: "/", label: "今日", icon: CalendarDays },
+  { href: "/schedule", label: "课表", icon: CalendarDays },
   { href: "/goals", label: "目标", icon: Flag },
   { href: "/history", label: "历史", icon: History },
   { href: "/butler", label: "管家", icon: Sparkles },

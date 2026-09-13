@@ -1,4 +1,11 @@
 export type GoalStatus = "active" | "completed" | "paused";
+export type Course = BaseRow &
+  import("../../../supabase/functions/_shared/schedule-schema").CourseEntry;
+export type ScheduleSettings = {
+  user_id: string;
+  period_times: import("../../../supabase/functions/_shared/schedule-schema").PeriodTime[];
+  updated_at: string;
+};
 export type ChatSession = BaseRow & { title: string; archived: boolean };
 export type ChatMessage = {
   id: string;
@@ -61,6 +68,11 @@ type Table<Row, Required extends keyof Row> = {
 export type Database = {
   public: {
     Tables: {
+      course_schedule: Table<
+        Course,
+        "user_id" | "course_date" | "title" | "period_start" | "period_end"
+      >;
+      schedule_settings: Table<ScheduleSettings, "user_id" | "period_times">;
       chat_sessions: Table<ChatSession, "user_id">;
       chat_messages: Table<
         ChatMessage,
@@ -81,6 +93,12 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      import_course_schedule: {
+        Args: {
+          p_entries: import("../../../supabase/functions/_shared/schedule-schema").CourseEntry[];
+        };
+        Returns: number;
+      };
       confirm_memory: {
         Args: {
           p_id: string;
