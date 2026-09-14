@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   courseTime,
+  DEFAULT_PERIOD_TIMES,
   validatePeriods,
   type CourseEntry,
 } from "./schedule-schema.ts";
@@ -34,13 +35,14 @@ export async function readSchedule(
   if (settings.error) throw new PlanError("DATABASE_ERROR", 503);
   let times;
   try {
-    times = validatePeriods(settings.data?.period_times ?? []);
+    times = validatePeriods(settings.data?.period_times ?? DEFAULT_PERIOD_TIMES);
   } catch {
     throw new PlanError("DATABASE_ERROR", 503);
   }
   return {
     dates,
     timezone: "Asia/Shanghai",
+    time_source: settings.data ? "saved_settings" : "confirmed_default_schedule",
     courses: (data as CourseEntry[]).map((e) => ({
       date: e.course_date,
       title: e.title,

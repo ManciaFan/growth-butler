@@ -18,5 +18,11 @@ test('context reads only requested dates and current owner, without loading the 
  const queries=[];const rows={course_schedule:[{user_id:'a',course_date:'2026-09-14',title:'selected',period_start:1,period_end:2,location:''},{user_id:'b',course_date:'2026-09-14',title:'OTHER_USER',period_start:1,period_end:2},{user_id:'a',course_date:'2026-12-01',title:'OTHER_DATE',period_start:1,period_end:2}],schedule_settings:[]};
  const db={from(table){let data=rows[table],single=false;queries.push(table);const q={select(){return q;},eq(k,v){data=data.filter(r=>r[k]===v);return q;},in(k,v){data=data.filter(r=>v.includes(r[k]));return q;},order(){return q;},limit(n){data=data.slice(0,n);return q;},maybeSingle(){single=true;return q;},then(resolve){resolve({data:single?data[0]??null:data,error:null});}};return q;}};
  assert.equal(await readSchedule(db,'a',[]),null);assert.equal(queries.length,0);
- const result=await readSchedule(db,'a',['2026-09-14']);assert.equal(result.courses.length,1);assert.equal(result.courses[0].title,'selected');assert.equal(result.courses[0].time,null);assert.ok(!JSON.stringify(result).includes('OTHER_'));
+ const result=await readSchedule(db,'a',['2026-09-14']);assert.equal(result.courses.length,1);assert.equal(result.courses[0].title,'selected');assert.equal(result.courses[0].time,'08:00–09:35');assert.ok(!JSON.stringify(result).includes('OTHER_'));
+ rows.course_schedule[0].period_start=5;rows.course_schedule[0].period_end=6;
+ assert.equal((await readSchedule(db,'a',['2026-09-14'])).courses[0].time,'13:30–15:05');
+ rows.schedule_settings.push({user_id:'a',period_times:[{period:5,start:'14:00',end:'14:45'},{period:6,start:'14:50',end:'15:35'}]});
+ assert.equal((await readSchedule(db,'a',['2026-09-14'])).courses[0].time,'14:00–15:35');
+ rows.schedule_settings[0].period_times=[];
+ assert.equal((await readSchedule(db,'a',['2026-09-14'])).courses[0].time,null,'explicitly cleared settings must not be overwritten by defaults');
 });

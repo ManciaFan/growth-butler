@@ -183,7 +183,7 @@ export function ScheduleManager() {
     setTimes(result.data.period_times);
     setStatus("作息时间已保存到云端。");
   }
-  const visibleTimes = settings?.period_times ?? [];
+  const visibleTimes = settings?.period_times ?? DEFAULT_PERIOD_TIMES;
   return (
     <div className="schedule-space">
       <section className="card">
@@ -202,7 +202,7 @@ export function ScheduleManager() {
                   .maybeSingle();
                 if (r.error) throw failure(r.error);
                 setSettings(r.data);
-                setTimes(r.data?.period_times ?? []);
+                setTimes(r.data?.period_times ?? DEFAULT_PERIOD_TIMES);
                 setStatus("已刷新云端课表。");
               })
             }
