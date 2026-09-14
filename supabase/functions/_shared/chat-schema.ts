@@ -1,4 +1,5 @@
 import { validateProposal, type PlanProposal } from "./plan-schema.ts";
+import { validateToday, type TodayRevision } from "./today-schema.ts";
 export type MemoryProposal = {
   category: string;
   key: string;
@@ -10,6 +11,7 @@ export type ChatReply = {
   reply: string;
   memory_proposal: MemoryProposal | null;
   plan_revision: PlanProposal | null;
+  today_revision?: TodayRevision | null;
 };
 function object(value: unknown, keys: string[]): Record<string, unknown> {
   if (
@@ -47,8 +49,21 @@ export function doNotRemember(text: string) {
   );
 }
 export function validateChat(value: unknown, input = ""): ChatReply {
-  const v = object(value, ["reply", "memory_proposal", "plan_revision"]);
+  const hasToday =
+    !!value && typeof value === "object" && "today_revision" in value;
+  const v = object(value, [
+    "reply",
+    "memory_proposal",
+    "plan_revision",
+    ...(hasToday ? ["today_revision"] : []),
+  ]);
   return {
+    ...(hasToday
+      ? {
+          today_revision:
+            v.today_revision === null ? null : validateToday(v.today_revision),
+        }
+      : {}),
     reply: text(v.reply, 6000),
     memory_proposal: doNotRemember(input)
       ? null

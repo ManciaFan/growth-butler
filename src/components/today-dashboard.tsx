@@ -5,6 +5,7 @@ import { Check, Leaf, Sun } from "lucide-react";
 import { useUserId } from "./auth-context";
 import { CloudStatus } from "./cloud-status";
 import { TomorrowPlanner } from "./tomorrow-planner";
+import { TaskTime, RevisionHistory } from "./today-revision";
 import { useCloudResource } from "@/lib/use-cloud-resource";
 import {
   addTask,
@@ -133,6 +134,7 @@ function TodayEditor({
           {error}
         </p>
       )}
+      <RevisionHistory planId={plan.id} />
       <TomorrowPlanner
         sourceDate={plan.plan_date}
         sourceVersion={JSON.stringify([
@@ -184,6 +186,7 @@ function TodayEditor({
                   </span>
                   <span className="task-content">
                     <strong>{task.title}</strong>
+                    <TaskTime task={task} />
                     <span>
                       {task.estimated_minutes > 0
                         ? `预计 ${task.estimated_minutes} 分钟`

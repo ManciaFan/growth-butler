@@ -46,6 +46,8 @@ export type Goal = BaseRow & {
 };
 export type DailyPlan = BaseRow & { plan_date: string; main_goal: string };
 export type Task = BaseRow & {
+  scheduled_start: string | null;
+  scheduled_end: string | null;
   daily_plan_id: string;
   title: string;
   completed: boolean;
@@ -68,6 +70,27 @@ type Table<Row, Required extends keyof Row> = {
 export type Database = {
   public: {
     Tables: {
+      today_plan_revisions: Table<
+        {
+          id: string;
+          user_id: string;
+          daily_plan_id: string;
+          revision_date: string;
+          reason: string;
+          generated_at: string;
+          applied_at: string;
+          before_tasks: Task[];
+          after_tasks: Task[];
+        },
+        | "id"
+        | "user_id"
+        | "daily_plan_id"
+        | "revision_date"
+        | "reason"
+        | "generated_at"
+        | "before_tasks"
+        | "after_tasks"
+      >;
       course_schedule: Table<
         Course,
         "user_id" | "course_date" | "title" | "period_start" | "period_end"
@@ -93,6 +116,7 @@ export type Database = {
     };
     Views: { [_ in never]: never };
     Functions: {
+      apply_today_revision: { Args: { p_message_id: string }; Returns: string };
       import_course_schedule: {
         Args: {
           p_entries: import("../../../supabase/functions/_shared/schedule-schema").CourseEntry[];

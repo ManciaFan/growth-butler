@@ -5,6 +5,7 @@ import { useUserId } from "./auth-context";
 import { CloudStatus } from "./cloud-status";
 import { useCloudResource } from "@/lib/use-cloud-resource";
 import { loadHistory } from "@/lib/cloud";
+import { TaskTime, RevisionHistory } from "./today-revision";
 export function HistoryDashboard() {
   const userId = useUserId();
   const [page, setPage] = useState(0);
@@ -63,12 +64,28 @@ export function HistoryDashboard() {
                         <span aria-label={task.completed ? "已完成" : "未完成"}>
                           {task.completed ? "✓" : "○"}
                         </span>
-                        <span className="preserve-lines">{task.title}{task.reason && <small className="task-detail">安排原因：{task.reason}</small>}{task.success_criteria && <small className="task-detail">完成标准：{task.success_criteria}</small>}</span>
-                        <small>{task.estimated_minutes} 分钟</small>
+                        <span className="preserve-lines">
+                          {task.title}
+                          {task.reason && (
+                            <small className="task-detail">
+                              安排原因：{task.reason}
+                            </small>
+                          )}
+                          {task.success_criteria && (
+                            <small className="task-detail">
+                              完成标准：{task.success_criteria}
+                            </small>
+                          )}
+                        </span>
+                        <small>
+                          {task.estimated_minutes} 分钟
+                          <TaskTime task={task} />
+                        </small>
                       </li>
                     ))}
                   </ul>
                 )}
+                <RevisionHistory planId={plan.id} />
                 <div className="history-feedback">
                   <h3>
                     当日反馈

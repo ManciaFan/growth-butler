@@ -48,6 +48,9 @@ export async function sendChat(
     const value = await response.json();
     if (!response.ok) {
       const errors: Record<string, string> = {
+        COURSE_TIME_MISSING: "今天课程缺少具体时间，请先到课表补齐节次时间。",
+        REPLANNING_NOT_READY: "今日调整尚未启用，请先执行 005 数据库迁移。",
+        TODAY_MISSING: "请先打开首页创建今天的计划，再回来调整。",
         TURN_BUSY: "这条消息正在处理，请稍后刷新后重试。",
         AI_TIMEOUT: "AI 回复超时，可以重试该消息。",
         AI_RATE_LIMIT: "请求过于频繁，请稍后重试。",

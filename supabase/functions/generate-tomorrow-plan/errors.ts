@@ -1,4 +1,6 @@
 export const messages = {
+  COURSE_TIME_MISSING: "今天的课程缺少具体时间，请先在课表中补齐节次时间，再调整今日计划。",
+  REPLANNING_NOT_READY: "今日调整尚未启用，请先执行 005 数据库迁移。",
   UNAUTHENTICATED: "登录已失效，请重新登录后生成计划。",
   AUTH_UNAVAILABLE: "暂时无法验证登录状态，请稍后重试。",
   INVALID_REQUEST: "请求格式不正确，请刷新页面后重试。",

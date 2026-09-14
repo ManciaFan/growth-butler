@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { TodayRevisionCard } from "./today-revision";
 import { useUserId } from "./auth-context";
 import { createClient } from "@/lib/supabase/client";
 import { confirmMemory, dbFailure, sendChat, validateChat } from "@/lib/butler";
@@ -388,6 +389,9 @@ export function ButlerChat({
                         : "仅用于本次对话，不加入长期记忆"}
                   </p>
                 )}
+                {r?.today_revision && (
+                  <TodayRevisionCard message={m} revision={r.today_revision} />
+                )}
                 {r?.plan_revision && (
                   <div className="memory-proposal">
                     <h3>建议的计划调整</h3>
@@ -444,7 +448,7 @@ export function ButlerChat({
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             disabled={busy || loading}
-            placeholder="例如：明天只有两小时，可以调整一下吗？"
+            placeholder="例如：我今天临时有事，帮我重新排今天剩下的时间"
           />
           <div className="preview-actions">
             <button

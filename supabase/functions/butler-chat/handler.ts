@@ -5,6 +5,11 @@ import { activeMemoryContext } from "../_shared/memory-context.ts";
 import { readSchedule } from "../_shared/schedule-context.ts";
 import { scheduleDates } from "../_shared/schedule-schema.ts";
 import {
+  todayIntent,
+  validateTodayContext,
+  type TodaySnapshot,
+} from "../_shared/today-schema.ts";
+import {
   loadContext,
   validatePlanningRules,
 } from "../generate-tomorrow-plan/context.ts";
@@ -22,10 +27,13 @@ active_memories 是用户确认的当前长期信息，优先于旧聊天和阶�
 替换时沿用对应 active memory 的 category 和 key，不能用新key制造冲突事实。撤销使用 invalidate 并沿用已有 category/key。模糊的“刚才说错了”先问清楚。
 你不能写入长期记忆或计划。不要说已记住、已更新或已采用。重要信息询问“这看起来会影响后续计划。是否更新为你的当前长期信息？”
 仅当用户要求调整且 preview 非 null 才输出 plan_revision。解释问题不改计划，临时事件可调整；只能先应用到预览，最终由用户采用。
-输出严格JSON，只有 reply（1~6000字）、memory_proposal、plan_revision 三个字段。
+输出严格JSON，只有 reply（1~6000字）、memory_proposal、plan_revision、today_revision 四个字段。
+today_revision 仅在 today_replanning 非 null 且用户要求调整今天时提出，否则为 null。它的格式是 {"reason":"修订原因","tasks":[{"source_task_id":"现有可调整任务id或null","title":"明确可执行任务","start_time":"HH:MM","end_time":"HH:MM","estimated_minutes":30,"reason":"安排原因","success_criteria":"完成标准"}]}。
+今天最多6项剩余任务，也可以为空（剩余时间全部休息）。使用北京时间，只安排当前时间之后到23:59之前。开始结束时间必须与预计分钟数一致且不能重叠。课程和 fixed_blocks 是确定占用，不能安排任务。已完成、已开始和已过时段的任务完全保留，不要放入返回列表，也不要重复安排同名事项。旧无时间的未完成任务可调整。沿用任务时提供它的 source_task_id；新任务用 null；没有放入列表的可调整任务将被撤下，但保留修订历史。不要机械延期全部任务。
+active_memories 中用户确认的睡眠、健身时长（包括通勤）、目标和其他长期规则参与规划。最新临时事件可以改变剩余安排。规则不明确时询问用户，today_revision 为 null。只生成预览，不声称已更新；用户点击“应用到今天”后才保存。不要同时返回今天和明天两种修订。
 memory_proposal 为 null 或 {"category":"career","key":"current_priority","value":"当前结论","confidence":"high","action":"replace"}，confidence仅low/medium/high，action仅replace/invalidate，category<=80,key<=120,value<=1200字。
 plan_revision 为 null 或以下计划格式；以下规则只适用于 plan_revision：\n${SYSTEM_PROMPT}
-再次确认：最外层始终只有 reply、memory_proposal、plan_revision 三个字段。上述计划 JSON 只能放在 plan_revision 字段内；没有要求调整时 plan_revision 为 null。`;
+再次确认：最外层始终只有 reply、memory_proposal、plan_revision、today_revision 四个字段。上述明日计划 JSON 只能放在 plan_revision 字段内；没有要求调整时两种 revision 都为 null。`;
 const headers = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -45,6 +53,7 @@ export async function handleChat(
     createUserClient: (jwt: string) => SupabaseClient;
     getAIConfig: () => AIConfig;
     fetcher?: typeof fetch;
+    now?: () => Date;
   },
 ) {
   let db: SupabaseClient | undefined,
@@ -137,6 +146,24 @@ export async function handleChat(
         { status: 409, headers },
       );
     turn = body.message_id;
+    const now = deps.now ?? (() => new Date());
+    let todaySnapshot: TodaySnapshot | null = null;
+    if (todayIntent(body.content)) {
+      const snapshot = await db.rpc("get_today_replanning_snapshot");
+      if (snapshot.error)
+        throw new PlanError(
+          snapshot.error.code === "PGRST202"
+            ? "REPLANNING_NOT_READY"
+            : "DATABASE_ERROR",
+          503,
+        );
+      todaySnapshot = snapshot.data as TodaySnapshot;
+      if (!todaySnapshot?.plan) throw new PlanError("TODAY_MISSING", 409);
+      if (todaySnapshot.unknown_courses)
+        throw new PlanError("COURSE_TIME_MISSING", 422);
+      if (JSON.stringify(snapshot.data).length > 24000)
+        throw new PlanError("CONTEXT_TOO_LARGE", 422);
+    }
     const memories = await activeMemoryContext(db, owner);
     const planning = await loadContext(db, owner, dateWindow(), true);
     const messages = await db
@@ -156,6 +183,23 @@ export async function handleChat(
     if (messages.error || summaries.error)
       throw new PlanError("DATABASE_ERROR", 503);
     const context = {
+      today_replanning: todaySnapshot
+        ? {
+            date: todaySnapshot.date,
+            current_time: now().toLocaleString("sv-SE", {
+              timeZone: "Asia/Shanghai",
+            }),
+            timezone: "Asia/Shanghai",
+            tasks: todaySnapshot.tasks,
+            fixed_blocks: todaySnapshot.fixed_blocks.filter(
+              (b) =>
+                +new Date(`${todaySnapshot!.date}T00:00:00+08:00`) +
+                  b.end * 60000 >
+                +now(),
+            ),
+            unknown_courses: todaySnapshot.unknown_courses,
+          }
+        : null,
       course_schedule: await readSchedule(
         db,
         owner,
@@ -200,6 +244,11 @@ export async function handleChat(
       CHAT_PROMPT,
       (value) => {
         const result = validateChat(value, body.content);
+        if (result.today_revision) {
+          if (!todaySnapshot || result.plan_revision)
+            throw Error("Unexpected today revision");
+          validateTodayContext(result.today_revision, todaySnapshot, now());
+        }
         if (
           result.memory_proposal?.action === "invalidate" &&
           !memories.some(
@@ -227,6 +276,12 @@ export async function handleChat(
         metadata: {
           reply_to: turn,
           result,
+          ...(result.today_revision
+            ? {
+                today_snapshot: todaySnapshot,
+                today_generated_at: now().toISOString(),
+              }
+            : {}),
           preview: body.preview,
           expected_memory: result.memory_proposal
             ? (memories.find(
